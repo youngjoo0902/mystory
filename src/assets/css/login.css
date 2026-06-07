@@ -3,7 +3,7 @@
 .login_wrap .login_box h1 {text-align:center; margin-bottom:24px; font-size:24px; color:#000;}
 .login_wrap .input_group {margin-bottom:16px;}
 .login_wrap .input_group label {display:none; margin-bottom:6px; font-size:14px; color:#000;}
-.login_wrap .input_group input {width:100%; padding:10px 12px; background:#ecf6ff; border:0; border-bottom:1px solid#c0d8f1; box-sizing:border-box; color:#000;}
+.login_wrap .input_group input {width:100%; padding:10px 12px; background:#ecf6ff; border:0; border-bottom:1px solid#c0d8f1; box-sizing:border-box; color:#000; line-height:1.5;}
 .login_wrap .input_group input::placeholder {color:#739ddf;}
 .login_wrap .input_group input:focus {outline: none; border-color:#0969da;}
 .login_wrap .signup_btn {width: 100%; margin-top: 12px; padding: 12px; border: none; border-radius: 6px; background:#306ecb; color: white; font-size: 14px; font-weight: 600; cursor: pointer;}
