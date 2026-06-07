@@ -154,7 +154,7 @@ function Visitor() {
         </div>
         <p className="write"><button onClick={createPost} disabled={!newPost.trim()}><span>글작성</span></button></p>
        </>
-       : <p className="need_login">로그인 후 글을 작성하실 수 있습니다.</p>
+       : <p className="need_login">로그인 후 글을 작성하실 수 있습니다...</p>
        }
     </div>
   )
