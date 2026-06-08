@@ -69,10 +69,10 @@
 .visit .content .list > li .reply input{border:0; width:100%; padding:10px;}
 .visit .content .list > li .reply input:focus{outline:none;}
 .visit .content .list > li .reply button{width:80px; text-align:center; background:#156673; color:#fff;}
-.visit .createText  {border:1px solid #ccc;}
+.visit .createText  {border:1px solid #1a3379; margin-top:30px;}
 .visit .createText textarea  {width:100%; min-height:100px; padding:10px; border:0;}
 .visit .createText textarea:focus{outline:none;}
 .visit .write  {text-align:right; margin-top:10px;}
 .visit .write button    {display:inline-block; padding:10px 20px; background:#1a3379; color:#fff;}
-.visit .need_login  {color:#0043c3; margin-top:30px;}
+.visit .need_login  {color:#0043c3; padding:50px 0 20px; text-align:center;}
 #footer {border-top:1px solid #eee; text-align:center; padding:20px 0;}

@@ -31,7 +31,7 @@ function Visitor() {
     });
   };
   const fetchComments = async (postId) => {
-    const { data, error } = await supabase.from("guestbook_comments").select(`id, post_id, content, created_at, user_id, profiles!inner(username)`).eq("post_id", postId).eq("is_deleted", false).order("created_at", { ascending: true });
+    const { data, error } = await supabase.from("guestbook_comments").select(`id, post_id, content, created_at, user_id, is_deleted, profiles!inner(username)`).eq("post_id", postId).eq("is_deleted", false).order("created_at", { ascending: false });
 
     if (error) return;
 
@@ -80,15 +80,28 @@ function Visitor() {
 
   // 게시글 삭제 (soft delete)
   const deletePost = async (postId) => {
-    await supabase.from("guestbook_posts").update({ is_deleted: true }).eq("id", postId);
+    const { data, error } = await supabase.from("guestbook_posts").update({ is_deleted: true }).eq("id", postId);
 
-    fetchPosts();
+    console.log("DELETE POST RESULT:", { data, error });
+
+    const { data: user } = await supabase.auth.getUser();
+    console.log("AUTH USER:", user);
+    const { data: session } = await supabase.auth.getSession();
+    console.log("SESSION:", session);
+
+    if (!error) {
+      fetchPosts();
+    }
   };
   // 댓글 삭제 (soft delete)
   const deleteComment = async (commentId, postId) => {
-    await supabase.from("guestbook_comments").update({ is_deleted: true }).eq("id", commentId);
-
-    fetchComments(postId);
+    const { error } = await supabase.from("guestbook_comments").update({ is_deleted: true }).eq("id", commentId);
+    if (!error) {
+      setComments(prev => ({
+        ...prev,
+        [postId]: prev[postId].filter(c => c.id !== commentId)
+      }));
+    }
   };
 
   // 날짜 시간 포맷
@@ -110,27 +123,36 @@ function Visitor() {
       <h2>Visitor</h2>
       <p>방명록임...</p>
       <div className="content">
+      {user ?
+      <>
+        <div className="createText">
+          <textarea value={newPost} onChange={(e) => setNewPost(e.target.value)} onKeyDown={(e) => {if (e.key === "Enter" && e.shiftKey === false) {e.preventDefault(); createPost();}}} placeholder="내용을 입력하세요" />
+        </div>
+        <p className="write"><button onClick={createPost} disabled={!newPost.trim()}><span>글작성</span></button></p>
+       </>
+       : <p className="need_login">로그인 후 글을 작성하실 수 있습니다...</p>
+       }
         <ul className="list">
         {posts.map(post => (
           <li key={post.id}>
             <div className="writer">
               <span className="user">{post.profiles?.username}</span>
               <span className="date">{formatDate(post.created_at)}</span>
-              {/* {user?.id === post.user_id && (
+              {user?.id === post.user_id && (
                 <button className="delete" onClick={() => deletePost(post.id)}>❌</button>
-              )} */}
+              )}
             </div>
             <div className="text">{post.content}</div>
             <div className="replys">
               <ul>
-                {(comments[post.id] || []).map(comment => (
+                {(comments[post.id] || []).filter(comment => !comment.is_deleted).map(comment => (
                   <li key={comment.id}>
                   <div className="reply_writer">
                     <span className="user">{comment.profiles?.username}</span>
                     <span className="date">{formatDate(comment.created_at)}</span>
-                    {/* {user?.id === comment.user_id && (
+                    {user?.id === comment.user_id && (
                       <button className="delete" onClick={() => deleteComment(comment.id, post.id)}>❌</button>
-                    )} */}
+                    )}
                   </div>
                   <div className="comment">{comment.content}</div>
                 </li>
@@ -147,15 +169,6 @@ function Visitor() {
           ))}
         </ul>
       </div>
-      {user ?
-      <>
-        <div className="createText">
-          <textarea value={newPost} onChange={(e) => setNewPost(e.target.value)} onKeyDown={(e) => {if (e.key === "Enter" && e.shiftKey === false) {e.preventDefault(); createPost();}}} placeholder="내용을 입력하세요" />
-        </div>
-        <p className="write"><button onClick={createPost} disabled={!newPost.trim()}><span>글작성</span></button></p>
-       </>
-       : <p className="need_login">로그인 후 글을 작성하실 수 있습니다...</p>
-       }
     </div>
   )
 }
