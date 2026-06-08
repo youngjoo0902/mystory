@@ -10,7 +10,9 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
 createRoot(document.getElementById('root')).render(
-  <HashRouter basename={import.meta.env.PROD ? '/mystory' : '/'}>
+  // 해시라우터는 basename 삭제
+  // <HashRouter basename={import.meta.env.PROD ? '/mystory' : '/'}>
+  <HashRouter>
     <App />
   </HashRouter>,
 )
