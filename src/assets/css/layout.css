@@ -49,7 +49,7 @@
 .visit .content .list   {margin:20px 0; font-size:12px;}
 .visit .content .list > li   {border:1px solid #ebebeb; margin-top:10px;}
 .visit .content .list > li:first-child{margin-top:0;}
-.visit .content .list > li .writer    {position:relative; border-bottom:1px solid #ebebeb; padding:10px; display:flex; flex-direction:row;}
+.visit .content .list > li .writer    {position:relative; border-bottom:1px solid #ebebeb; padding:10px; display:flex; flex-direction:row; align-items:center;}
 .visit .content .list > li .writer .user  {display:inline-block; color:#0043c3; font-family:'Gana Chocolate', 'Line Seed KR', sans-serif; font-size:15px;}
 .visit .content .list > li .writer .date  {position:relative; display:inline-block; padding-left:10px; margin-left:10px;}
 .visit .content .list > li .writer .date::before{content:""; position:absolute; top:50%; left:0; width:2px; height:2px; border-radius:50%; background:#000; transform:translateY(-50%);}
@@ -76,11 +76,11 @@
 .visit .content .list > li .replys > ul li .comment .edit_complete{width:50px; height:25px; background:#1a3379; color:#fff; margin-left:5px; font-size:12px; line-height:25px;}
 .visit .content .list > li .replys > ul li .comment .edit_cancel{width:50px; height:25px; background:#666; color:#fff; margin-left:5px; font-size:12px; line-height:25px;}
 .visit .content .list > li .reply  {display:flex; border-top:1px solid #ebebeb; flex-direction:row;}
-.visit .content .list > li .reply input{border:0; width:100%; padding:5px 10px;}
+.visit .content .list > li .reply input{border:0; width:100%; padding:5px 10px; font-size:12px;}
 .visit .content .list > li .reply input:focus{outline:none;}
 .visit .content .list > li .reply button{width:80px; text-align:center; background:#156673; color:#fff; font-size:12px;}
 .visit .createText  {border:1px solid #1a3379; margin-top:30px;}
-.visit .createText textarea  {width:100%; min-height:100px; padding:10px; border:0;}
+.visit .createText textarea  {width:100%; min-height:100px; padding:10px; border:0; font-size:12px;}
 .visit .createText textarea:focus{outline:none;}
 .visit .write  {text-align:right; margin-top:10px;}
 .visit .write button    {display:inline-block; padding:10px 20px; background:#1a3379; color:#fff;}

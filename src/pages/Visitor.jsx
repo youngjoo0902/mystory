@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from "../lib/supabaseClient"
@@ -12,8 +12,10 @@ function Visitor() {
   const [ comments, setComments ] = useState({});
   const [ newComment, setNewComment ] = useState({});
   const [ newPost, setNewPost ] = useState('');
+  const postTextareaRef = useRef(null);
   const [editingPost, setEditingPost] = useState(null);
   const [editingContent, setEditingContent] = useState("");
+  const commentInputRefs = useRef({});
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingCommentText, setEditingCommentText] = useState("");
   // 데이터 로딩 (방명록 + 댓글)
@@ -181,7 +183,7 @@ function Visitor() {
               <span className="date">{formatDate(post.created_at)}</span>
               {user?.id === post.user_id && (
                 <>
-                  <FontAwesomeIcon className="modify" title="수정" icon={faPenToSquare} onClick={() => {setEditingPost(post.id); setEditingContent(post.content);}} />
+                  <FontAwesomeIcon className="modify" title="수정" icon={faPenToSquare} onClick={() => {setEditingPost(post.id); setEditingContent(post.content); setTimeout(() => {postTextareaRef.current?.focus();}, 0);}} />
                   <FontAwesomeIcon className="delete" title="삭제" icon={faTrashCan} onClick={() => deletePost(post.id)} />
                 </>
               )}
@@ -189,7 +191,7 @@ function Visitor() {
             <div className="text">
               {editingPost === post.id ? (
                 <>
-                <textarea value={editingContent} onChange={(e) => setEditingContent(e.target.value)}></textarea>
+                <textarea ref={postTextareaRef} value={editingContent} onChange={(e) => setEditingContent(e.target.value)}></textarea>
                 <button className="edit_complete" onClick={() => updatePost(post.id)}><span>저장</span></button>
                 <button className="edit_cancel" onClick={() => setEditingPost(null)}><span>취소</span></button>
                 </>
@@ -206,7 +208,7 @@ function Visitor() {
                     <span className="date">{formatDate(comment.created_at)}</span>
                     {user?.id === comment.user_id && (
                         <>
-                        <FontAwesomeIcon className="modify" title="수정" icon={faPenToSquare} onClick={() => {setEditingCommentId(comment.id); setEditingCommentText(comment.content);}} />
+                        <FontAwesomeIcon className="modify" title="수정" icon={faPenToSquare} onClick={() => {setEditingCommentId(comment.id); setEditingCommentText(comment.content); setTimeout(() => {commentInputRefs.current[comment.id]?.focus();}, 0);}} />
                         <FontAwesomeIcon className="delete" title="삭제" icon={faTrashCan} onClick={() => deleteComment(comment.id, post.id)} />
                       </>
                     )}
@@ -214,7 +216,7 @@ function Visitor() {
                   <div className="comment">
                     {editingCommentId === comment.id ? (
                       <>
-                        <input value={editingCommentText} onChange={(e) => setEditingCommentText(e.target.value)}/>
+                        <input ref={(el) => (commentInputRefs.current[comment.id] = el)} value={editingCommentText} onChange={(e) => setEditingCommentText(e.target.value)}/>
                         <button className="edit_complete" onClick={() => updateComment(comment.id, post.id)}>저장</button>
                         <button className="edit_cancel" onClick={() => {setEditingCommentId(null); setEditingCommentText("");}}>취소</button>
                       </>
