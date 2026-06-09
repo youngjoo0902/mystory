@@ -46,29 +46,39 @@
 .board .upload_board .upload_files .file_input input {position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;}
 .visit  {text-align:center;}
 .visit .content {text-align:left;}
-.visit .content .list   {margin:20px 0;}
+.visit .content .list   {margin:20px 0; font-size:12px;}
 .visit .content .list > li   {border:1px solid #ebebeb; margin-top:10px;}
 .visit .content .list > li:first-child{margin-top:0;}
 .visit .content .list > li .writer    {position:relative; border-bottom:1px solid #ebebeb; padding:10px; display:flex; flex-direction:row;}
 .visit .content .list > li .writer .user  {display:inline-block; color:#0043c3; font-family:'Gana Chocolate', 'Line Seed KR', sans-serif; font-size:15px;}
 .visit .content .list > li .writer .date  {position:relative; display:inline-block; padding-left:10px; margin-left:10px;}
 .visit .content .list > li .writer .date::before{content:""; position:absolute; top:50%; left:0; width:2px; height:2px; border-radius:50%; background:#000; transform:translateY(-50%);}
-.visit .content .list > li .writer > .delete    {position:absolute; top:50%; right:10px; transform:translateY(-50%);}
+.visit .content .list > li .writer > .modify    {position:absolute; top:50%; right:30px; transform:translateY(-50%); color:#c95f00;}
+.visit .content .list > li .writer > .delete    {position:absolute; top:50%; right:10px; transform:translateY(-50%); color:#c95f00;}
 .visit .content .list > li .text  {min-height:80px; padding:10px; line-height:1.5;}
+.visit .content .list > li .text:has(textarea)  {position:relative; padding-bottom:30px;}
+.visit .content .list > li .text textarea   {width:100%; height:70px; border:0; font-size:12px;}
+.visit .content .list > li .text .edit_complete {position:absolute; bottom:5px; right:60px; width:50px; height:25px; background:#1a3379; color:#fff; margin-left:5px; font-size:12px; line-height:25px;}
+.visit .content .list > li .text .edit_cancel {position:absolute; bottom:5px; right:5px; width:50px; height:25px; background:#666; color:#fff; font-size:12px; line-height:25px;}
 .visit .content .list > li .replys  {background:#ebebeb;}
 .visit .content .list > li .replys > ul {}
 .visit .content .list > li .replys > ul li  {padding:0 10px 10px; border-top:1px solid #ddd;}
 .visit .content .list > li .replys > ul li:first-child{border-top:0;}
 .visit .content .list > li .replys > ul li .reply_writer    {position:relative; border-bottom:1px solid #ddd; padding:10px 0;}
-.visit .content .list > li .replys > ul li .reply_writer .user  {display:inline-block; color:#0043c3; font-family:'Gana Chocolate', 'Line Seed KR', sans-serif; font-size:15px;}
+.visit .content .list > li .replys > ul li .reply_writer .user  {display:inline-block; color:#0043c3; font-family:'Gana Chocolate', 'Line Seed KR', sans-serif; font-size:12px;}
 .visit .content .list > li .replys > ul li .reply_writer .date  {position:relative; display:inline-block; padding-left:10px; margin-left:10px;}
 .visit .content .list > li .replys > ul li .reply_writer .date::before{content:""; position:absolute; top:50%; left:0; width:2px; height:2px; border-radius:50%; background:#000; transform:translateY(-50%);}
-.visit .content .list > li .replys > ul li .reply_writer .delete    {position:absolute; top:50%; right:0; transform:translateY(-50%);}
+.visit .content .list > li .replys > ul li .reply_writer .modify    {position:absolute; top:50%; right:20px; transform:translateY(-50%); color:#c95f00;}
+.visit .content .list > li .replys > ul li .reply_writer .delete    {position:absolute; top:50%; right:0; transform:translateY(-50%); color:#c95f00;}
 .visit .content .list > li .replys > ul li .comment {padding-top:10px; line-height:1.5;}
+.visit .content .list > li .replys > ul li .comment:has(input)  {display:flex; flex-direction:row;}
+.visit .content .list > li .replys > ul li .comment input   {border:0; width:100%; height:25px; font-size:12px;}
+.visit .content .list > li .replys > ul li .comment .edit_complete{width:50px; height:25px; background:#1a3379; color:#fff; margin-left:5px; font-size:12px; line-height:25px;}
+.visit .content .list > li .replys > ul li .comment .edit_cancel{width:50px; height:25px; background:#666; color:#fff; margin-left:5px; font-size:12px; line-height:25px;}
 .visit .content .list > li .reply  {display:flex; border-top:1px solid #ebebeb; flex-direction:row;}
-.visit .content .list > li .reply input{border:0; width:100%; padding:10px;}
+.visit .content .list > li .reply input{border:0; width:100%; padding:5px 10px;}
 .visit .content .list > li .reply input:focus{outline:none;}
-.visit .content .list > li .reply button{width:80px; text-align:center; background:#156673; color:#fff;}
+.visit .content .list > li .reply button{width:80px; text-align:center; background:#156673; color:#fff; font-size:12px;}
 .visit .createText  {border:1px solid #1a3379; margin-top:30px;}
 .visit .createText textarea  {width:100%; min-height:100px; padding:10px; border:0;}
 .visit .createText textarea:focus{outline:none;}

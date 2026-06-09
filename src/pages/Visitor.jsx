@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from "../lib/supabaseClient"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPenToSquare, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 
 function Visitor() {
   // 상태 추가
@@ -10,6 +12,10 @@ function Visitor() {
   const [ comments, setComments ] = useState({});
   const [ newComment, setNewComment ] = useState({});
   const [ newPost, setNewPost ] = useState('');
+  const [editingPost, setEditingPost] = useState(null);
+  const [editingContent, setEditingContent] = useState("");
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editingCommentText, setEditingCommentText] = useState("");
   // 데이터 로딩 (방명록 + 댓글)
   useEffect(() => {
     fetchPosts();
@@ -31,7 +37,7 @@ function Visitor() {
     });
   };
   const fetchComments = async (postId) => {
-    const { data, error } = await supabase.from("guestbook_comments").select(`id, post_id, content, created_at, user_id, is_deleted, profiles!inner(username)`).eq("post_id", postId).eq("is_deleted", false).order("created_at", { ascending: false });
+    const { data, error } = await supabase.from("guestbook_comments").select(`id, post_id, content, created_at, user_id, is_deleted, profiles!inner(username)`).eq("post_id", postId).eq("is_deleted", false).order("created_at", { ascending: true });
 
     if (error) return;
 
@@ -57,6 +63,25 @@ function Visitor() {
     setNewPost(""); // 입력 초기화
     fetchPosts();   // 목록 갱신
   };
+  // 게시글 수정
+  const updatePost = async (postId) => {
+    const { error } = await supabase
+      .from("guestbook_posts")
+      .update({
+        content: editingContent
+      })
+      .eq("id", postId);
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    setEditingPost(null);
+    setEditingContent("");
+
+    fetchPosts();
+  };
 
   //댓글 작성
   const createComment = async (postId) => {
@@ -76,6 +101,22 @@ function Visitor() {
 
       fetchComments(postId);
     }
+  };
+  //댓글 수정
+  const updateComment = async (commentId, postId) => {
+    const { error } = await supabase.from("guestbook_comments").update({
+        content: editingCommentText
+      }).eq("id", commentId);
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    setEditingCommentId(null);
+    setEditingCommentText("");
+
+    fetchComments(postId);
   };
 
   // 게시글 삭제 (soft delete)
@@ -112,7 +153,7 @@ function Visitor() {
     const mm = String(date.getMonth() + 1).padStart(2, "0");
     const dd = String(date.getDate()).padStart(2, "0");
 
-    const hh = String(date.getHours() + 9).padStart(2, "0");
+    const hh = String((date.getHours() + 9) % 24).padStart(2, "0");
     const min = String(date.getMinutes()).padStart(2, "0");
 
     return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
@@ -139,10 +180,23 @@ function Visitor() {
               <span className="user">{post.profiles?.username}</span>
               <span className="date">{formatDate(post.created_at)}</span>
               {user?.id === post.user_id && (
-                <button className="delete" onClick={() => deletePost(post.id)}>❌</button>
+                <>
+                  <FontAwesomeIcon className="modify" title="수정" icon={faPenToSquare} onClick={() => {setEditingPost(post.id); setEditingContent(post.content);}} />
+                  <FontAwesomeIcon className="delete" title="삭제" icon={faTrashCan} onClick={() => deletePost(post.id)} />
+                </>
               )}
             </div>
-            <div className="text">{post.content}</div>
+            <div className="text">
+              {editingPost === post.id ? (
+                <>
+                <textarea value={editingContent} onChange={(e) => setEditingContent(e.target.value)}></textarea>
+                <button className="edit_complete" onClick={() => updatePost(post.id)}><span>저장</span></button>
+                <button className="edit_cancel" onClick={() => setEditingPost(null)}><span>취소</span></button>
+                </>
+              ) : (
+                post.content
+              )}
+            </div>
             <div className="replys">
               <ul>
                 {(comments[post.id] || []).filter(comment => !comment.is_deleted).map(comment => (
@@ -151,10 +205,23 @@ function Visitor() {
                     <span className="user">{comment.profiles?.username}</span>
                     <span className="date">{formatDate(comment.created_at)}</span>
                     {user?.id === comment.user_id && (
-                      <button className="delete" onClick={() => deleteComment(comment.id, post.id)}>❌</button>
+                        <>
+                        <FontAwesomeIcon className="modify" title="수정" icon={faPenToSquare} onClick={() => {setEditingCommentId(comment.id); setEditingCommentText(comment.content);}} />
+                        <FontAwesomeIcon className="delete" title="삭제" icon={faTrashCan} onClick={() => deleteComment(comment.id, post.id)} />
+                      </>
                     )}
                   </div>
-                  <div className="comment">{comment.content}</div>
+                  <div className="comment">
+                    {editingCommentId === comment.id ? (
+                      <>
+                        <input value={editingCommentText} onChange={(e) => setEditingCommentText(e.target.value)}/>
+                        <button className="edit_complete" onClick={() => updateComment(comment.id, post.id)}>저장</button>
+                        <button className="edit_cancel" onClick={() => {setEditingCommentId(null); setEditingCommentText("");}}>취소</button>
+                      </>
+                    ) : (
+                      comment.content
+                    )}
+                  </div>
                 </li>
                 ))}
               </ul>

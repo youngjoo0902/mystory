@@ -1,6 +1,6 @@
 @charset "utf-8";
 
-* {box-sizing:border-box;}
+* {box-sizing:border-box; word-wrap:break-word;}
 html, body	{width:100%; font:normal 400 14px/1.2 "Noto Sans KR", dotum, "돋움"; color:#000; text-size-adjust:none; letter-spacing:-0.025em;}
 body	 {min-width:320px;}
 body, ol, ul, li, dl, dt, dd, blockquote, fieldset, h1, h2, h3, h4, h4, h5, h6, pre, form, p, div	{margin:0; padding:0;}
