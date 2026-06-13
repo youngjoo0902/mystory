@@ -23,7 +23,7 @@ function Community() {
   }, []);
   // 게시글 + 작성자 가져오기
   const fetchPosts = async () => {
-    const { data, error } = await supabase.from("guestbook_posts").select(`id, content, created_at, user_id, profiles!inner(username)`).eq("is_deleted", false).order("created_at", { ascending: false });
+    const { data, error } = await supabase.from("community_posts").select(`id, content, created_at, user_id, profiles!inner(username)`).eq("is_deleted", false).order("created_at", { ascending: false });
     console.log(data);
 
     if (error) {
@@ -39,7 +39,7 @@ function Community() {
     });
   };
   const fetchComments = async (postId) => {
-    const { data, error } = await supabase.from("guestbook_comments").select(`id, post_id, content, created_at, user_id, is_deleted, profiles!inner(username)`).eq("post_id", postId).eq("is_deleted", false).order("created_at", { ascending: true });
+    const { data, error } = await supabase.from("community_comments").select(`id, post_id, content, created_at, user_id, is_deleted, profiles!inner(username)`).eq("post_id", postId).eq("is_deleted", false).order("created_at", { ascending: true });
 
     if (error) return;
 
@@ -52,7 +52,7 @@ function Community() {
   const createPost = async () => {
     if (!newPost.trim()) return;
 
-    const { error } = await supabase.from("guestbook_posts").insert({
+    const { error } = await supabase.from("community_posts").insert({
       user_id: user?.id,
       content: newPost
     });
@@ -67,7 +67,7 @@ function Community() {
   };
   // 게시글 수정
   const updatePost = async (postId) => {
-    const { error } = await supabase.from("guestbook_posts").update({
+    const { error } = await supabase.from("community_posts").update({
         content: editingContent
       }).eq("id", postId);
 
@@ -86,7 +86,7 @@ function Community() {
   const createComment = async (postId) => {
     if (!newComment[postId]) return;
 
-    const { error } = await supabase.from("guestbook_comments").insert({
+    const { error } = await supabase.from("community_comments").insert({
         post_id: postId,
         user_id: user?.id,
         content: newComment[postId]
@@ -103,7 +103,7 @@ function Community() {
   };
   //댓글 수정
   const updateComment = async (commentId, postId) => {
-    const { error } = await supabase.from("guestbook_comments").update({
+    const { error } = await supabase.from("community_comments").update({
         content: editingCommentText
       }).eq("id", commentId);
 
@@ -120,7 +120,7 @@ function Community() {
 
   // 게시글 삭제 (soft delete)
   const deletePost = async (postId) => {
-    const { data, error } = await supabase.from("guestbook_posts").update({ is_deleted: true }).eq("id", postId);
+    const { data, error } = await supabase.from("community_posts").update({ is_deleted: true }).eq("id", postId);
 
     console.log("DELETE POST RESULT:", { data, error });
 
@@ -135,7 +135,7 @@ function Community() {
   };
   // 댓글 삭제 (soft delete)
   const deleteComment = async (commentId, postId) => {
-    const { error } = await supabase.from("guestbook_comments").update({ is_deleted: true }).eq("id", commentId);
+    const { error } = await supabase.from("community_comments").update({ is_deleted: true }).eq("id", commentId);
     if (!error) {
       setComments(prev => ({
         ...prev,
