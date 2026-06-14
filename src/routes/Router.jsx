@@ -1,32 +1,51 @@
-import { Routes, Route } from 'react-router-dom'
-import DefaultLayout from '../layouts/DefaultLayout'
-import EmptyLayout from '../layouts/EmptyLayout'
-import Main from '../pages/Main'
-import About from '../pages/About'
-import Login from '../pages/Login'
-import Join from '../pages/Join'
-import Story from '../pages/Story'
-import Community from '../pages/Community'
-import Guest from '../pages/Guest'
-//import FindId from '../pages/FindId'
+import { createHashRouter } from "react-router-dom";
 
-function Router() {
-  return (
-    <Routes>
-      <Route element={<DefaultLayout />}>
-        <Route path="/" element={<Main />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/story" element={<Story />} />
-        <Route path="/community" element={<Community />} />
-        <Route path="/guest" element={<Guest />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/join" element={<Join />} />
-      </Route>
-      <Route element={<EmptyLayout />}>
-      </Route>
-      {/* <Route path="/find-id" element={<FindId />} /> */}
-    </Routes>
-  )
-}
+const router = createHashRouter([
+  {
+    lazy: () =>
+    import("../layouts/DefaultLayout").then(module => ({Component: module.default,})),
+    children: [
+      {
+        path: "/",
+        lazy: () => import("../pages/Main").then(module => ({Component: module.default,})),
+      },
+      {
+        path: "/about",
+        lazy: () => import("../pages/About").then(module => ({Component: module.default,})),
+      },
+      {
+        path: "/memo",
+        lazy: () => import("../pages/Memo").then(module => ({Component: module.default,})),
+      },
+      {
+        path: "/story",
+        lazy: () => import("../pages/Story").then(module => ({Component: module.default,})),
+      },
+      {
+        path: "/community",
+        lazy: () => import("../pages/Community").then(module => ({Component: module.default,})),
+      },
+      {
+        path: "/guest",
+        lazy: () => import("../pages/Guest").then(module => ({Component: module.default,})),
+      },
+      {
+        path: "/login",
+        lazy: () => import("../pages/Login").then(module => ({Component: module.default,})),
+      },
+      {
+        path: "/join",
+        lazy: () => import("../pages/Join").then(module => ({Component: module.default,})),
+      },
+    ],
+  },
+  {
+    lazy: () =>
+      import("../layouts/EmptyLayout").then(module => ({Component: module.default,})),
+      children: [
+        // 필요 시 popup 같은 것
+      ],
+  },
+]);
 
-export default Router
+export default router;

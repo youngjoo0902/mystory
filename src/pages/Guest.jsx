@@ -289,7 +289,12 @@ function Guest() {
                 </>
               ) :
                 post.content.split('\n').map((item, i) => {
-                  return <p key={i}>{item}</p>
+                  return (
+                    <>
+                    <span key={i}>{item}</span>
+                    <br />
+                    </>
+                  )
                 })
               }
             </div>

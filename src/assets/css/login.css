@@ -1,4 +1,4 @@
-.login_wrap {width:100%; height:calc(100vh - 169px); display:flex; justify-content:center; align-items:center;}
+.login_wrap {width:100%; height:calc(100dvh - 169px); display:flex; justify-content:center; align-items:center;}
 .login_wrap .login_box {width:100%; max-width:260px;}
 .login_wrap .login_box h1 {text-align:center; margin-bottom:24px; font-size:24px; color:#000;}
 .login_wrap .input_group {margin-bottom:16px;}

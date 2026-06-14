@@ -24,7 +24,6 @@ function Community() {
   // 게시글 + 작성자 가져오기
   const fetchPosts = async () => {
     const { data, error } = await supabase.from("community_posts").select(`id, content, created_at, user_id, profiles!inner(username)`).eq("is_deleted", false).order("created_at", { ascending: false });
-    console.log(data);
 
     if (error) {
       console.error(error);
