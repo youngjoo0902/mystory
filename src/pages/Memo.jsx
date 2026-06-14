@@ -22,7 +22,6 @@ function Memo() {
     const [ tempContent, setTempContent ] = useState("");
     // 최초 데이터 로딩
     useEffect(() => {
-        alert('테스트');
         if (!user) return;
         fetchPosts();
     }, [user]);
