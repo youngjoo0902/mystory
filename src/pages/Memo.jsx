@@ -22,6 +22,7 @@ function Memo() {
     const [ tempContent, setTempContent ] = useState("");
     // 최초 데이터 로딩
     useEffect(() => {
+        alert('테스트');
         if (!user) return;
         fetchPosts();
     }, [user]);
@@ -37,6 +38,7 @@ function Memo() {
     }
     // 에디트 모드
     const editMode = (id, content) => {
+        if (editingId === id) return;
         if (insertMemo) return;
         if (editingId !== null && editingId !== id) {
             return;
@@ -127,7 +129,7 @@ function Memo() {
                     {memos.map(item => (
                         <li key={item.id} className={editingId === item.id ? "edit" : ""}>
                             <div className="content">
-                                <textarea value={editingId === item.id ? tempContent : item.content} onClick={() => editMode(item.id, item.content)} onChange={(e) => setTempContent(e.target.value)} placeholder="내용을 입력하세요" readOnly={editingId !== item.id}></textarea>
+                                <textarea value={editingId === item.id ? tempContent : item.content} onClick={(editingId) => editMode(item.id, item.content)} onChange={(e) => setTempContent(e.target.value)} placeholder="내용을 입력하세요" readOnly={editingId !== item.id}></textarea>
                                 <p className="writedby">
                                     <span>작성일 : {formatDate(item.created_at)}</span>
                                     {item.updated_at && <span>수정일 : {formatDate(item.updated_at)}</span>}
