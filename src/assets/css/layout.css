@@ -111,15 +111,19 @@
 .visit .layer_pw .cont .close::after{position:absolute; top:50%; left:0; width:30px; height:1px; background:#fff; transform:rotate(-45deg); content:'';}
 .visit .layer_pw::before{position:fixed; top:0; left:0; width:100%; height:100%; content:''; background:rgba(0, 0, 0, 0.5);}
 .visit .layer_pw .txt{margin:0 0 20px;}
-.visit .layer_pw label{display:block; border:1px solid #1a3379; margin:20px;}
+.visit .layer_pw label{display:block; border:1px solid #1a3379; margin:20px 20px 0;}
 .visit .layer_pw label input{width:100%; border:0; height:30px; text-align:center;}
-.visit .layer_pw .confirm   {text-align:center;}
+.visit .layer_pw .suggest   {text-align:center; color:#da0000; padding:20px 0 0; font-size:12px;}
+.visit .layer_pw .confirm   {display:flex; flex-direction:row; justify-content:center; gap:5px; padding-top:20px;}
 .visit .layer_pw .confirm button   {background:#156673; color:#fff; font-size:14px; padding:5px 20px;}
+.visit .layer_pw .confirm .cancel   {background:#666;}
 .memo_board {}
 .memo_board .memo_list li  {position:relative; background:#c3f1ed; margin-top:10px; padding:0 0 30px;}
 .memo_board .memo_list li:first-child{margin:0;}
 .memo_board .memo_list li .ctrl {position:absolute; top:0; width:100%; text-align:right; background:#3fb5b5; padding:5px; user-select:none; display:none;}
 .memo_board .memo_list li .ctrl button{font-size:18px; display:inline-flex; flex-direction:row; padding:5px 10px; color:#fff;}
+.memo_board .memo_list li .ctrl .delete{position:absolute; left:0; color:#d50c7a;}
+.memo_board .memo_list li .ctrl .save   {color:#ffe200;}
 .memo_board .memo_list li .ctrl span{font-size:12px;}
 .memo_board .memo_list li .content{padding:10px 10px 0; line-height:1.4; font-size:13px; max-height:64px; overflow:hidden;}
 .memo_board .memo_list li .content textarea{width:100%; height:64px; border:0; background:transparent; font-size:13px; line-height:1.4; overflow:hidden; color:#333;}

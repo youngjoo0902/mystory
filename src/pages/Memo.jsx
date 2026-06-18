@@ -135,9 +135,9 @@ function Memo() {
                                 </p>
                             </div>
                             <div className="ctrl">
-                                <button className="save" onClick={() => updatePost(item.id)}><FontAwesomeIcon title="저장" icon={faFloppyDisk} /><span>저장</span></button>
-                                <button className="cancel" onClick={() => {setEditingId(null); setTempContent("");}}><FontAwesomeIcon title="취소" icon={faCircleXmark} /><span>취소</span></button>
                                 <button className="delete" onClick={() => deletePost(item.id)}><FontAwesomeIcon title="삭제" icon={faTrashCan} /><span>삭제</span></button>
+                                <button className="cancel" onClick={() => {setEditingId(null); setTempContent("");}}><FontAwesomeIcon title="취소" icon={faCircleXmark} /><span>취소</span></button>
+                                <button className="save" onClick={() => updatePost(item.id)}><FontAwesomeIcon title="저장" icon={faFloppyDisk} /><span>저장</span></button>
                             </div>
                         </li>
                         )

@@ -26,6 +26,7 @@ function Guest() {
   const pwInputRef = useRef(null);
   const postTextareaRefs = useRef({});
   const commentInputRefs = useRef({});
+  const [pwState, setPwState] = useState(true);
 
   useEffect(() => {
     fetchPosts();
@@ -187,13 +188,16 @@ function Guest() {
     }
 
     if (!ok) {
-      alert("비밀번호가 틀렸습니다");
-      setPwModal(prev => ({...prev, input: ''}));
-      setTimeout(() => {
-        pwInputRef.current?.focus();
-      }, 0);
+      pwModal.input.length === 4 ? setPwState(false) : setPwState(true);
+      // alert("비밀번호가 틀렸습니다");
+      // setPwModal(prev => ({...prev, input: ''}));
+      // setTimeout(() => {
+      //   pwInputRef.current?.focus();
+      // }, 0);
       return;
     }
+
+    setPwState(true);
 
     // 성공 처리
     if (type === "edit") {
@@ -259,7 +263,7 @@ function Guest() {
           </table>
         </div>
         <div className="createText">
-          <textarea placeholder="내용을 입력하세요" onChange={(e) => setContent(e.target.value)} />
+          <textarea placeholder="내용을 입력하세요" onChange={(e) => setContent(e.target.value)} value={content} />
         </div>
         <p className="write"><button onClick={createPost}><span>글작성</span></button></p>
         <ul className="list">
@@ -408,6 +412,7 @@ function Guest() {
           <p className="title">비밀번호를 입력하세요.</p>
           <button className="close" onClick={e => {
             e.preventDefault();
+            setPwState(true);
             setPwModal({
               open: false,
               type: "",
@@ -415,7 +420,8 @@ function Guest() {
               input: ""
             })
           }}><span>닫기</span></button>
-          <label><input type="password" ref={pwInputRef} maxLength={4} value={pwModal.input} onChange={(e) => setPwModal(prev => ({...prev, input: e.target.value}))} /></label>
+          <label><input type="password" ref={pwInputRef} maxLength={4} value={pwModal.input} onKeyUp={handlePwConfirm} onChange={(e) => setPwModal(prev => ({...prev, input: e.target.value}))} /></label>
+          {!pwState && <p className="suggest">비밀번호가 틀렸습니다.</p>}
           <p className="confirm"><button onClick={handlePwConfirm}>확인</button></p>
         </div>
       </div>

@@ -17,6 +17,7 @@ function Community() {
   const commentInputRefs = useRef({});
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingCommentText, setEditingCommentText] = useState("");
+  const [confirmOpen, setConfirmOpen] = useState([false, null]);
   // 데이터 로딩 (방명록 + 댓글)
   useEffect(() => {
     fetchPosts();
@@ -127,6 +128,7 @@ function Community() {
     console.log("AUTH USER:", user);
     const { data: session } = await supabase.auth.getSession();
     console.log("SESSION:", session);
+    setConfirmOpen([false, null]);
 
     if (!error) {
       fetchPosts();
@@ -165,7 +167,6 @@ function Community() {
       {user ?
       <>
         <div className="createText">
-          {/* <textarea value={newPost} onChange={(e) => setNewPost(e.target.value)} onKeyDown={(e) => {if (e.key === "Enter" && e.shiftKey === false) {e.preventDefault(); createPost();}}} placeholder="내용을 입력하세요" /> */}
           <textarea value={newPost} onChange={(e) => setNewPost(e.target.value)} placeholder="내용을 입력하세요" />
         </div>
         <p className="write"><button onClick={createPost} disabled={!newPost.trim()}><span>글작성</span></button></p>
@@ -181,7 +182,7 @@ function Community() {
               {user?.id === post.user_id && (
                 <>
                   <FontAwesomeIcon className="modify" title="수정" icon={faPenToSquare} onClick={() => {setEditingPost(post.id); setEditingContent(post.content); setTimeout(() => {postTextareaRef.current?.focus();}, 0);}} />
-                  <FontAwesomeIcon className="delete" title="삭제" icon={faTrashCan} onClick={() => deletePost(post.id)} />
+                  <FontAwesomeIcon className="delete" title="삭제" icon={faTrashCan} onClick={() => setConfirmOpen([true, post.id])} />
                 </>
               )}
             </div>
@@ -237,6 +238,18 @@ function Community() {
           ))}
         </ul>
       </div>
+      {confirmOpen[0] && (
+      <div className="layer_pw">
+        <div className="cont">
+          <p className="title">게시글을 삭제하시겠습니까?</p>
+          <button className="close" onClick={() => setConfirmOpen([false, null])}><span>닫기</span></button>
+          <p className="confirm">
+            <button className="cancel" onClick={() => setConfirmOpen([false, null])}>취소</button>
+            <button className="confirm" onClick={() => deletePost(confirmOpen[1])}>확인</button>
+          </p>
+        </div>
+      </div>
+      )}
     </div>
   )
 }
