@@ -1,1 +1,0 @@
-import{t as e}from"./jsx-runtime-DGeXAQPT.js";import{s as t}from"./index-BSBcZdTq.js";t();var n=e();function r(){return(0,n.jsxs)(`div`,{className:`main`,children:[(0,n.jsx)(`div`,{children:`메인 페이지`}),(0,n.jsxs)(`p`,{children:[`털어봤자 데이터 없음`,(0,n.jsx)(`br`,{}),`해야할거 겁내많음`]})]})}export{r as default};
