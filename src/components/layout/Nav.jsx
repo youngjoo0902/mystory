@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabaseClient'
 
@@ -7,7 +7,11 @@ function NavBar() {
     const { user } = useAuth();
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef(null);
-    
+    const location = useLocation();
+
+    useEffect(() => {
+        setMenuOpen(false);
+    }, [location]);
 
     // 로그아웃
     const handleLogout = async () => {

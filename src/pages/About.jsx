@@ -2,6 +2,7 @@ function About() {
     return (
         <div className="global_content">
             <h2>About</h2>
+            <p className="subtitle">(일단 빈페이지)</p>
             <ul className="hipen_list">
                 <li>리액트 + vite 기반으로 개발중...</li>
                 <li>github에 소스 올리고, 그대로 github pages에 호스팅 하는 서비스임</li>

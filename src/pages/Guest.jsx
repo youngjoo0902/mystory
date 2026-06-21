@@ -240,10 +240,10 @@ function Guest() {
   };
 
   return (
-    <div className="visit">
+    <div className="global_content">
       <h2>Guest</h2>
-      <p>(방명록임)</p>
-      <div className="content">
+      <p className="subtitle">(방명록임)</p>
+      <div className="visit_content">
         <div className="guest">
           <table>
             <colgroup>
@@ -294,10 +294,7 @@ function Guest() {
               ) :
                 post.content.split('\n').map((item, i) => {
                   return (
-                    <>
-                    <span key={i}>{item}</span>
-                    <br />
-                    </>
+                    <span key={i}>{item}<br /></span>
                   )
                 })
               }

@@ -1,13 +1,15 @@
-import { createHashRouter } from "react-router-dom";
+import { createHashRouter, RouterProvider } from "react-router-dom";
 
+const GlobalSpinner = () => <div className="loading"><div className="loading_content">Loading...</div></div>;
 const router = createHashRouter([
   {
+    HydrateFallback: GlobalSpinner,
     lazy: () =>
     import("../layouts/DefaultLayout").then(module => ({Component: module.default,})),
     children: [
       {
         path: "/",
-        lazy: () => import("../pages/Main").then(module => ({Component: module.default,})),
+        lazy: () => import("../pages/AllFeed").then(module => ({Component: module.default,})),
       },
       {
         path: "/about",
@@ -20,6 +22,10 @@ const router = createHashRouter([
       {
         path: "/story",
         lazy: () => import("../pages/Story").then(module => ({Component: module.default,})),
+      },
+      {
+        path: "/story/:id",
+        lazy: () => import("../pages/StoryDetail").then(module => ({Component: module.default,})),
       },
       {
         path: "/community",
@@ -40,12 +46,13 @@ const router = createHashRouter([
     ],
   },
   {
+    HydrateFallback: GlobalSpinner,
     lazy: () =>
       import("../layouts/EmptyLayout").then(module => ({Component: module.default,})),
       children: [
         // 필요 시 popup 같은 것
       ],
-  },
+  }
 ]);
 
 export default router;

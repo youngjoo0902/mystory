@@ -20,6 +20,7 @@ function Memo() {
     const [ memos, setMemos ] = useState([]);
     const [ editingId, setEditingId ] = useState(null);
     const [ tempContent, setTempContent ] = useState("");
+    const [ willDelete, setWillDelete ] = useState([false, null]);
     // 최초 데이터 로딩
     useEffect(() => {
         if (!user) return;
@@ -112,6 +113,7 @@ function Memo() {
     return (
         <div className="global_content">
             <h2>Memo</h2>
+            <p className="subtitle">(메모장임)</p>
             <div className="memo_board">
                 <ul className="memo_list">
                     {insertMemo &&
@@ -135,7 +137,7 @@ function Memo() {
                                 </p>
                             </div>
                             <div className="ctrl">
-                                <button className="delete" onClick={() => deletePost(item.id)}><FontAwesomeIcon title="삭제" icon={faTrashCan} /><span>삭제</span></button>
+                                <button className="delete" onClick={() => setWillDelete([true, item.id])}><FontAwesomeIcon title="삭제" icon={faTrashCan} /><span>삭제</span></button>
                                 <button className="cancel" onClick={() => {setEditingId(null); setTempContent("");}}><FontAwesomeIcon title="취소" icon={faCircleXmark} /><span>취소</span></button>
                                 <button className="save" onClick={() => updatePost(item.id)}><FontAwesomeIcon title="저장" icon={faFloppyDisk} /><span>저장</span></button>
                             </div>
@@ -147,6 +149,19 @@ function Memo() {
                     <button className="add" onClick={addMemo}><FontAwesomeIcon icon={faPlus}><span>추가</span></FontAwesomeIcon></button>
                 }
             </div>
+            {willDelete[0] &&
+            <div className="layer_pw">
+                <div className="cont">
+                <p className="title">게시글을 삭제하시겠습니까?</p>
+                <button className="close" onClick={() => setWillDelete([false, null])}><span>닫기</span></button>
+
+                <p className="confirm">
+                    <button className="cancel" onClick={() => setWillDelete([false, null])}>취소</button>
+                    <button className="confirm" onClick={() => {deletePost(willDelete[1]); setWillDelete([false, null])}}>확인</button>
+                </p>
+                </div>
+            </div>
+            }
         </div>
     );
 }

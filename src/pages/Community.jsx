@@ -17,7 +17,8 @@ function Community() {
   const commentInputRefs = useRef({});
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingCommentText, setEditingCommentText] = useState("");
-  const [confirmOpen, setConfirmOpen] = useState([false, null]);
+  const [confirmOpen, setConfirmOpen] = useState([false, null, null]);
+  const [deleteFrom, setDeleteFrom] = useState(null);
   // 데이터 로딩 (방명록 + 댓글)
   useEffect(() => {
     fetchPosts();
@@ -128,7 +129,7 @@ function Community() {
     console.log("AUTH USER:", user);
     const { data: session } = await supabase.auth.getSession();
     console.log("SESSION:", session);
-    setConfirmOpen([false, null]);
+    setConfirmOpen([false, null, null]);
 
     if (!error) {
       fetchPosts();
@@ -143,6 +144,7 @@ function Community() {
         [postId]: prev[postId].filter(c => c.id !== commentId)
       }));
     }
+    setConfirmOpen([false, null, null]);
   };
 
   // 날짜 시간 포맷
@@ -160,10 +162,10 @@ function Community() {
   };
 
   return (
-    <div className="visit">
+    <div className="global_content">
       <h2>Community</h2>
-      <p>(회원전용 게시판)</p>
-      <div className="content">
+      <p className="subtitle">(회원전용 게시판)</p>
+      <div className="visit_content">
       {user ?
       <>
         <div className="createText">
@@ -182,7 +184,7 @@ function Community() {
               {user?.id === post.user_id && (
                 <>
                   <FontAwesomeIcon className="modify" title="수정" icon={faPenToSquare} onClick={() => {setEditingPost(post.id); setEditingContent(post.content); setTimeout(() => {postTextareaRef.current?.focus();}, 0);}} />
-                  <FontAwesomeIcon className="delete" title="삭제" icon={faTrashCan} onClick={() => setConfirmOpen([true, post.id])} />
+                  <FontAwesomeIcon className="delete" title="삭제" icon={faTrashCan} onClick={() => {setDeleteFrom('post'); setConfirmOpen([true, post.id])}} />
                 </>
               )}
             </div>
@@ -195,7 +197,7 @@ function Community() {
                 </>
               ) : (
                   post.content.split("\n").map((item, i) => {
-                    return <p key={i}>{item}</p>
+                    return <span key={i}>{item}<br /></span>
                   })
               )}
             </div>
@@ -209,7 +211,7 @@ function Community() {
                     {user?.id === comment.user_id && (
                         <>
                         <FontAwesomeIcon className="modify" title="수정" icon={faPenToSquare} onClick={() => {setEditingCommentId(comment.id); setEditingCommentText(comment.content); setTimeout(() => {commentInputRefs.current[comment.id]?.focus();}, 0);}} />
-                        <FontAwesomeIcon className="delete" title="삭제" icon={faTrashCan} onClick={() => deleteComment(comment.id, post.id)} />
+                        <FontAwesomeIcon className="delete" title="삭제" icon={faTrashCan} onClick={() => {setDeleteFrom('reply'); setConfirmOpen([true, comment.id, post.id])}} />
                       </>
                     )}
                   </div>
@@ -242,11 +244,21 @@ function Community() {
       <div className="layer_pw">
         <div className="cont">
           <p className="title">게시글을 삭제하시겠습니까?</p>
-          <button className="close" onClick={() => setConfirmOpen([false, null])}><span>닫기</span></button>
-          <p className="confirm">
+          {deleteFrom === 'post'
+            ? <button className="close" onClick={() => {setDeleteFrom(null); setConfirmOpen([false, null])}}><span>닫기</span></button>
+            : <button className="close" onClick={() => {setDeleteFrom(null); setConfirmOpen([false, null, null])}}><span>닫기</span></button>
+          }
+          
+          {deleteFrom === 'post'
+          ? <p className="confirm">
             <button className="cancel" onClick={() => setConfirmOpen([false, null])}>취소</button>
             <button className="confirm" onClick={() => deletePost(confirmOpen[1])}>확인</button>
           </p>
+          : <p className="confirm">
+            <button className="cancel" onClick={() => setConfirmOpen([false, null, null])}>취소</button>
+            <button className="confirm" onClick={() => deleteComment(confirmOpen[1], confirmOpen[2])}>확인</button>
+          </p>
+          }
         </div>
       </div>
       )}
