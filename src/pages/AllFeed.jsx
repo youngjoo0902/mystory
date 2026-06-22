@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { Pagination } from 'swiper/modules';
 import 'swiper/css';
+import 'swiper/css/pagination';
 
 function AllFeed() {
     const [posts, setPosts] = useState([]);
@@ -77,14 +79,14 @@ function AllFeed() {
     };
 
     // 날짜 시간 포맷
-    const formatDate = (dateString) => {
+    const formatDate = (dateString, addHour) => {
         const date = new Date(dateString);
 
         const yyyy = date.getFullYear();
         const mm = String(date.getMonth() + 1).padStart(2, "0");
         const dd = String(date.getDate()).padStart(2, "0");
 
-        const hh = String((date.getHours() + 9) % 24).padStart(2, "0");
+        const hh = String((date.getHours() + addHour) % 24).padStart(2, "0");
         const min = String(date.getMinutes()).padStart(2, "0");
 
         return `${yyyy}년 ${mm}월 ${dd}일 ${hh}시 ${min}분`;
@@ -100,7 +102,7 @@ function AllFeed() {
         );
 
         return (
-            <Swiper spaceBetween={10} slidesPerView={1}>
+            <Swiper modules={[Pagination]} spaceBetween={10} slidesPerView={1} pagination={files.length > 1 ? { clickable: true } : false}>
                 {sortedFiles.map((file) => (
                     <SwiperSlide key={file.id}>
                         {file.file_type === 'image' ? (
@@ -148,7 +150,7 @@ function AllFeed() {
                 </div>
                 <div className="date">
                     {post?.created_at &&
-                    formatDate(post.created_at)
+                    formatDate(post.created_at, 0)
                     }
                 </div>
 

@@ -46,6 +46,8 @@
 .all_feed_list .feed_card .feed_media .swiper-wrapper .swiper-slide video{position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:100%;}
 .all_feed_list .feed_card .feed_media .swiper-wrapper .swiper-slide .portrait{width:auto; height:100%;}
 .all_feed_list .feed_card .feed_media .swiper-wrapper .swiper-slide .landscape{width:100%; height:auto;}
+.all_feed_list .feed_card .feed_media .swiper-pagination .swiper-pagination-bullet {background:#666; opacity:1;}
+.all_feed_list .feed_card .feed_media .swiper-pagination .swiper-pagination-bullet-active   {background:#004eff;}
 .all_feed_list .feed_stats   {position:relative; display:flex; justify-content:flex-start; align-items:center; height:35px; padding:10px 0 0;}
 .all_feed_list .feed_stats svg   {width:25px; height:25px;}
 .all_feed_list .feed_stats [class*="_count"] {padding:0 15px 0 5px; height:100%; line-height:1.5;}
@@ -125,7 +127,7 @@
 .visit_content .write  {text-align:right; margin-top:10px;}
 .visit_content .write button    {display:inline-block; padding:10px 20px; background:#1a3379; color:#fff;}
 .visit_content .need_login  {color:#0043c3; padding:50px 0 20px; text-align:center;}
-.layer_pw    {position:fixed; top:90px; left:50%; width:250px; background:#fff; border:1px solid #4060b9; margin-left:-125px; text-align:left;}
+.layer_pw    {position:fixed; top:90px; left:50%; width:250px; background:#fff; border:1px solid #4060b9; margin-left:-125px; text-align:left; z-index:20;}
 .layer_pw .cont  {position:relative; background:#fff; z-index:1; padding:0 0 20px;}
 .layer_pw .cont .title{background:#156673; color:#fff; padding:15px 20px;}
 .layer_pw .cont .close   {position:absolute; top:7px; right:7px; width:30px; height:30px;}
@@ -171,7 +173,7 @@
 .story .viewer .list_section .swiper-wrapper .swiper-slide .portrait{width:auto; height:100%;}
 .story .viewer .list_section .swiper-wrapper .swiper-slide .landscape{width:100%; height:auto;}
 .story .viewer .list_section .swiper-pagination {position:static; padding:10px 0;}
-.story .viewer .list_section .swiper-pagination .swiper-pagination-bullet-active    {background:#ff5e00;}
+.story .viewer .list_section .swiper-pagination .swiper-pagination-bullet-active    {background:#004eff;}
 .story .viewer .post_info   {position:relative; display:flex; justify-content:flex-start; align-items:center; height:35px; padding:10px 10px 0;}
 .story .viewer .post_info svg   {width:25px; height:25px;}
 .story .viewer .post_info [class*="_count"] {padding:0 15px 0 5px; height:100%; line-height:1.5;}
