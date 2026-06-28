@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import { useParams } from 'react-router-dom'
 import { supabase } from "../lib/supabaseClient";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import 'swiper/css';
@@ -8,12 +12,16 @@ import 'swiper/css/pagination';
 
 function StoryDetail() {
   const { id } = useParams();
+  const { postId } = useParams();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [post, setPost] = useState(null);
   const [files, setFiles] = useState([]);
   const [fileDirections, setFileDirections] = useState({});
+  const [showDeleteLayer, setShowDeleteLayer] = useState(false);
   useEffect(() => {
     fetchPost();
-  }, [id]);
+  }, [postId]);
 
   useEffect(() => {
     files.forEach(file => {
@@ -52,14 +60,15 @@ function StoryDetail() {
     });
   }, [files]);
   const fetchPost = async () => {
-    const { data, error } = await supabase.from('posts').select('*').eq('id', id).single();
+    const { data, error } = await supabase.from('posts').select('*').eq('id', postId).single();
 
     if (error) {
       console.log(error);
       return;
     }
 
-    const { data: fileData, error: fileError } = await supabase.from('post_files').select('*').eq('post_id', id).order('sort_order', { ascending: true });
+    const { data: fileData, error: fileError } = await supabase.from('post_files').select('*').eq('post_id', postId).order('sort_order', { ascending: true });
+
     if (fileError) {
       console.log(fileError);
       return;
@@ -69,15 +78,43 @@ function StoryDetail() {
     setFiles(fileData);
   };
 
+  // 삭제
+  const openDeleteLayer = () => {
+    setShowDeleteLayer(true);
+  };
+  const closeDeleteLayer = () => {
+    setShowDeleteLayer(false);
+  };
+  const handleDelete = async () => {
+    // 1. post_files 삭제
+    const { error: fileError } = await supabase.from('post_files').delete().eq('post_id', postId);
+
+    if (fileError) {
+      console.log('file delete error:', fileError);
+      return;
+    }
+
+    // 2. posts 삭제
+    const { error: postError } = await supabase.from('posts').delete().eq('id', postId);
+
+    if (postError) {
+      console.log('post delete error:', postError);
+      return;
+    }
+
+    // 3. 이동 or UI 처리
+    setShowDeleteLayer(false);
+    navigate('/story');
+  };
   // 날짜 시간 포맷
-  const formatDate = (dateString) => {
+  const formatDate = (dateString, addHour) => {
       const date = new Date(dateString);
 
       const yyyy = date.getFullYear();
       const mm = String(date.getMonth() + 1).padStart(2, "0");
       const dd = String(date.getDate()).padStart(2, "0");
 
-      const hh = String((date.getHours() + 9) % 24).padStart(2, "0");
+      const hh = String((date.getHours() + addHour) % 24).padStart(2, "0");
       const min = String(date.getMinutes()).padStart(2, "0");
 
       return `${yyyy}년 ${mm}월 ${dd}일 ${hh}시 ${min}분`;
@@ -92,9 +129,9 @@ function StoryDetail() {
               {files.map(file => (
                 <SwiperSlide key={file.id}>
                   {file.file_type === 'image' ? (
-                    <img src={file.file_url} className={fileDirections[file.id]} alt="" />
+                    <img src={file.file_url} className={`${fileDirections[file.id]} ${file.fit}`} alt="" />
                   ) : (
-                    <video src={file.file_url} controls className={fileDirections[file.id]} />
+                    <video src={file.file_url} controls className={`${fileDirections[file.id]} ${file.fit}`} />
                   )}
                 </SwiperSlide>
               ))}
@@ -110,10 +147,13 @@ function StoryDetail() {
             <span className="see_count">{post?.view_count ?? 0}</span>
             <span className="reply"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path d="M64 304C64 358.4 83.3 408.6 115.9 448.9L67.1 538.3C65.1 542 64 546.2 64 550.5C64 564.6 75.4 576 89.5 576C93.5 576 97.3 575.4 101 573.9L217.4 524C248.8 536.9 283.5 544 320 544C461.4 544 576 436.5 576 304C576 171.5 461.4 64 320 64C178.6 64 64 171.5 64 304zM158 471.9C167.3 454.8 165.4 433.8 153.2 418.7C127.1 386.4 112 346.8 112 304C112 200.8 202.2 112 320 112C437.8 112 528 200.8 528 304C528 407.2 437.8 496 320 496C289.8 496 261.3 490.1 235.7 479.6C223.8 474.7 210.4 474.8 198.6 479.9L140 504.9L158 471.9zM208 336C225.7 336 240 321.7 240 304C240 286.3 225.7 272 208 272C190.3 272 176 286.3 176 304C176 321.7 190.3 336 208 336zM352 304C352 286.3 337.7 272 320 272C302.3 272 288 286.3 288 304C288 321.7 302.3 336 320 336C337.7 336 352 321.7 352 304zM432 336C449.7 336 464 321.7 464 304C464 286.3 449.7 272 432 272C414.3 272 400 286.3 400 304C400 321.7 414.3 336 432 336z"/></svg></span>
             <span className="reply_count">{post?.comment_count ?? 0}</span>
+            {user?.id === post?.user_id && (
+              <button className="btn_delete" onClick={openDeleteLayer}><FontAwesomeIcon icon={faTrashCan} /></button>
+            )}
           </div>
           <span className="post_date">
             {post?.created_at &&
-              formatDate(post.created_at)
+              formatDate(post.created_at, 0)
             }
           </span>
           <div className="text_section">
@@ -121,6 +161,19 @@ function StoryDetail() {
           </div>
         </div>
       </div>
+      {showDeleteLayer && (
+      <div className="layer_pw">
+          <div className="cont">
+          <p className="title">게시글을 삭제하시겠습니까?</p>
+          <button className="close" onClick={closeDeleteLayer}><span>닫기</span></button>
+
+          <p className="confirm">
+              <button className="cancel" onClick={closeDeleteLayer}>취소</button>
+              <button className="confirm" onClick={handleDelete}>확인</button>
+          </p>
+          </div>
+      </div>
+      )}
     </div>
   )
 }

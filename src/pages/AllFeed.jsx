@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
@@ -10,10 +11,14 @@ function AllFeed() {
 
     const [files, setFiles] = useState([]);
     const [fileDirections, setFileDirections] = useState({});
+    const [profiles, setProfiles] = useState({});
 
     useEffect(() => {
         fetchPosts();
     }, []);
+    useEffect(() => {
+        fetchProfiles();
+    }, [posts]);
 
     useEffect(() => {
         if (!posts.length) return;
@@ -25,50 +30,65 @@ function AllFeed() {
     useEffect(() => {
         if (!files.length) return;
 
-        files.forEach(file => {
+    const newDirections = {};
 
-            // 이미 처리된 파일이면 skip (중요)
-            if (fileDirections[file.id]) return;
+    files.forEach(file => {
+        if (fileDirections[file.id]) return;
 
-            // 이미지
-            if (file.file_type === 'image') {
-                const img = new Image();
+        if (file.file_type === 'image') {
+            const img = new Image();
 
-                img.onload = () => {
-                    setFileDirections(prev => ({
-                        ...prev,
-                        [file.id]: img.width > img.height ? 'landscape' : 'portrait'
-                    }));
-                };
+            img.onload = () => {
+                setFileDirections(prev => ({
+                    ...prev,
+                    [file.id]: img.width > img.height ? 'landscape' : 'portrait'
+                }));
+            };
 
-                img.src = file.file_url;
-            }
+            img.src = file.file_url;
+        }
 
-            // 비디오
-            if (file.file_type === 'video') {
-                const video = document.createElement('video');
+        if (file.file_type === 'video') {
+            const video = document.createElement('video');
+            video.preload = 'metadata';
 
-                video.preload = 'metadata';
+            video.onloadedmetadata = () => {
+                setFileDirections(prev => ({
+                    ...prev,
+                    [file.id]: video.videoWidth > video.videoHeight ? 'landscape' : 'portrait'
+                }));
+            };
 
-                video.onloadedmetadata = () => {
-                    setFileDirections(prev => ({
-                        ...prev,
-                        [file.id]: video.videoWidth > video.videoHeight ? 'landscape' : 'portrait'
-                    }));
-                };
-
-                video.src = file.file_url;
-            }
-
-        });
+            video.src = file.file_url;
+        }
+    });
 
     }, [files]);
 
+    const fetchProfiles = async (posts = []) => {
+        if (!posts.length) return;
+
+        const userIds = [...new Set(posts.map(p => p.user_id))];
+
+        const { data, error } = await supabase.from('profiles').select('id, username, photo').in('id', userIds);
+
+        if (error) {
+            console.log('fetchProfiles error:', error);
+            return;
+        }
+
+        const map = {};
+        data.forEach(profile => {
+            map[profile.id] = profile;
+        });
+
+        setProfiles(map);
+    };
     // =========================
     // posts + media 전체 가져오기
     // =========================
     const fetchPosts = async () => {
-        const { data, error } = await supabase.from('posts').select(`id, content, created_at, view_count, like_count, comment_count, file_count, profiles:user_id(id, username), post_files:post_files!post_files_post_id_fkey(id, file_url, file_type, sort_order)`).eq('is_deleted', false).order('created_at', { ascending: false }).limit(5);
+        const { data, error } = await supabase.from('posts').select(`id, user_id, content, created_at, view_count, like_count, comment_count, file_count, profiles:user_id(id, username), post_files:post_files!post_files_post_id_fkey(id, file_url, file_type, sort_order, fit)`).eq('is_deleted', false).order('created_at', { ascending: false }).limit(5);
 
         if (error) {
         console.log('fetchPosts error:', error);
@@ -76,8 +96,17 @@ function AllFeed() {
         }
 
         setPosts(data || []);
+        fetchProfiles(data || []);
     };
+    const getPublicUrl = (path) => {
+    if (!path) return "";
 
+    const { data } = supabase.storage
+        .from("profile")
+        .getPublicUrl(path);
+
+    return data.publicUrl;
+    };
     // 날짜 시간 포맷
     const formatDate = (dateString, addHour) => {
         const date = new Date(dateString);
@@ -102,13 +131,13 @@ function AllFeed() {
         );
 
         return (
-            <Swiper modules={[Pagination]} spaceBetween={10} slidesPerView={1} pagination={files.length > 1 ? { clickable: true } : false}>
+            <Swiper modules={[Pagination]} spaceBetween={10} slidesPerView={1} pagination={post.post_files.length > 1 ? { clickable: true } : false}>
                 {sortedFiles.map((file) => (
                     <SwiperSlide key={file.id}>
                         {file.file_type === 'image' ? (
-                            <img src={file.file_url} className={fileDirections[file.id]} alt="" />
+                            <img src={file.file_url} className={`${fileDirections[file.id]} ${file.fit}`} alt="" />
                         ) : (
-                            <video src={file.file_url} controls className={fileDirections[file.id]} />
+                            <video src={file.file_url} className={`${fileDirections[file.id]} ${file.fit}`} />
                         )}
                     </SwiperSlide>
                 ))}
@@ -125,11 +154,12 @@ function AllFeed() {
         <div className="all_feed_list">
         {posts.map((post) => (
             <div key={post.id} className="feed_card">
-
-                <div className="feed_header">
-                    <span className="user_image"></span>
-                    <span className="user_info">{post.profiles?.username}</span>
-                </div>
+                <Link to={`/story/${post.user_id}`}>
+                    <div className="feed_header">
+                        <span className="user_image">{profiles[post.user_id]?.photo && <img src={getPublicUrl(profiles[post.user_id]?.photo)} />}</span>
+                        <span className="user_info">{post.profiles?.username}</span>
+                    </div>
+                </Link>
 
                 {/* media swiper */}
                 <div className="feed_media">
@@ -139,8 +169,8 @@ function AllFeed() {
                 {/* stats */}
                 <div className="feed_stats">
                     <button className="like">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="solid" viewBox="0 0 640 640"><path d="M442.9 144C415.6 144 389.9 157.1 373.9 179.2L339.5 226.8C335 233 327.8 236.7 320.1 236.7C312.4 236.7 305.2 233 300.7 226.8L266.3 179.2C250.3 157.1 224.6 144 197.3 144C150.3 144 112.2 182.1 112.2 229.1C112.2 279 144.2 327.5 180.3 371.4C221.4 421.4 271.7 465.4 306.2 491.7C309.4 494.1 314.1 495.9 320.2 495.9C326.3 495.9 331 494.1 334.2 491.7C368.7 465.4 419 421.3 460.1 371.4C496.3 327.5 528.2 279 528.2 229.1C528.2 182.1 490.1 144 443.1 144zM335 151.1C360 116.5 400.2 96 442.9 96C516.4 96 576 155.6 576 229.1C576 297.7 533.1 358 496.9 401.9C452.8 455.5 399.6 502 363.1 529.8C350.8 539.2 335.6 543.9 320 543.9C304.4 543.9 289.2 539.2 276.9 529.8C240.4 502 187.2 455.5 143.1 402C106.9 358.1 64 297.7 64 229.1C64 155.6 123.6 96 197.1 96C239.8 96 280 116.5 305 151.1L320 171.8L335 151.1z"/></svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="fill" viewBox="0 0 640 640"><path d="M305 151.1L320 171.8L335 151.1C360 116.5 400.2 96 442.9 96C516.4 96 576 155.6 576 229.1L576 231.7C576 343.9 436.1 474.2 363.1 529.9C350.7 539.3 335.5 544 320 544C304.5 544 289.2 539.4 276.9 529.9C203.9 474.2 64 343.9 64 231.7L64 229.1C64 155.6 123.6 96 197.1 96C239.8 96 280 116.5 305 151.1z"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="solid" viewBox="0 0 640 640"><path d="M442.9 144C415.6 144 389.9 157.1 373.9 179.2L339.5 226.8C335 233 327.8 236.7 320.1 236.7C312.4 236.7 305.2 233 300.7 226.8L266.3 179.2C250.3 157.1 224.6 144 197.3 144C150.3 144 112.2 182.1 112.2 229.1C112.2 279 144.2 327.5 180.3 371.4C221.4 421.4 271.7 465.4 306.2 491.7C309.4 494.1 314.1 495.9 320.2 495.9C326.3 495.9 331 494.1 334.2 491.7C368.7 465.4 419 421.3 460.1 371.4C496.3 327.5 528.2 279 528.2 229.1C528.2 182.1 490.1 144 443.1 144zM335 151.1C360 116.5 400.2 96 442.9 96C516.4 96 576 155.6 576 229.1C576 297.7 533.1 358 496.9 401.9C452.8 455.5 399.6 502 363.1 529.8C350.8 539.2 335.6 543.9 320 543.9C304.4 543.9 289.2 539.2 276.9 529.8C240.4 502 187.2 455.5 143.1 402C106.9 358.1 64 297.7 64 229.1C64 155.6 123.6 96 197.1 96C239.8 96 280 116.5 305 151.1L320 171.8L335 151.1z"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="fill" viewBox="0 0 640 640"><path d="M305 151.1L320 171.8L335 151.1C360 116.5 400.2 96 442.9 96C516.4 96 576 155.6 576 229.1L576 231.7C576 343.9 436.1 474.2 363.1 529.9C350.7 539.3 335.5 544 320 544C304.5 544 289.2 539.4 276.9 529.9C203.9 474.2 64 343.9 64 231.7L64 229.1C64 155.6 123.6 96 197.1 96C239.8 96 280 116.5 305 151.1z"/></svg>
                     </button>
                     <span className="like_count">{post?.like_count ?? 0}</span>
                     <span className="see"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path d="M320 96C239.2 96 174.5 132.8 127.4 176.6C80.6 220.1 49.3 272 34.4 307.7C31.1 315.6 31.1 324.4 34.4 332.3C49.3 368 80.6 420 127.4 463.4C174.5 507.1 239.2 544 320 544C400.8 544 465.5 507.2 512.6 463.4C559.4 419.9 590.7 368 605.6 332.3C608.9 324.4 608.9 315.6 605.6 307.7C590.7 272 559.4 220 512.6 176.6C465.5 132.9 400.8 96 320 96zM176 320C176 240.5 240.5 176 320 176C399.5 176 464 240.5 464 320C464 399.5 399.5 464 320 464C240.5 464 176 399.5 176 320zM320 256C320 291.3 291.3 320 256 320C244.5 320 233.7 317 224.3 311.6C223.3 322.5 224.2 333.7 227.2 344.8C240.9 396 293.6 426.4 344.8 412.7C396 399 426.4 346.3 412.7 295.1C400.5 249.4 357.2 220.3 311.6 224.3C316.9 233.6 320 244.4 320 256z"/></svg></span>

@@ -57,6 +57,9 @@ function NavBar() {
                     }
                     <li><NavLink to="/community" onClick={toggle}>Community</NavLink></li>
                     <li><NavLink to="/guest" onClick={toggle}>Guest</NavLink></li>
+                    {user && 
+                        <li><NavLink to="/setting" onClick={toggle}>Setting</NavLink></li>
+                    }
                 </ul>
             </div>
         </div>

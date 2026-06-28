@@ -24,7 +24,11 @@ const router = createHashRouter([
         lazy: () => import("../pages/Story").then(module => ({Component: module.default,})),
       },
       {
-        path: "/story/:id",
+        path: "/story/:userId",
+        lazy: () => import("../pages/Story").then(module => ({Component: module.default,})),
+      },
+      {
+        path: "/story/detail/:postId",
         lazy: () => import("../pages/StoryDetail").then(module => ({Component: module.default,})),
       },
       {
@@ -34,6 +38,10 @@ const router = createHashRouter([
       {
         path: "/guest",
         lazy: () => import("../pages/Guest").then(module => ({Component: module.default,})),
+      },
+      {
+        path: "/setting",
+        lazy: () => import("../pages/Setting").then(module => ({Component: module.default,})),
       },
       {
         path: "/login",

@@ -1,25 +1,105 @@
 import { useState, useEffect } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { useParams, Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faExpand, faCompress } from '@fortawesome/free-solid-svg-icons';
 import { supabase } from "../lib/supabaseClient";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
 
 function Story() {
   const { user } = useAuth();
+  const { userId } = useParams();
   const [showUpload, setShowUpload] = useState(false);//추가 버튼
 
   const [content, setContent] = useState('');
   const [files, setFiles] = useState([]);
   const [posts, setPosts] = useState([]);
+  const [previewUrls, setPreviewUrls] = useState([]);
+  const [previewFiles, setPreviewFiles] = useState([]);
   useEffect(() => {
     fetchPosts();
   }, []);
+
+  useEffect(() => {
+    return () => {
+      previewUrls.forEach(file => {
+        URL.revokeObjectURL(file.url);
+      });
+    };
+  }, [previewUrls]);
 
   //추가 버튼 클릭시
   const uploadClick = () => {
     setShowUpload(prev => !prev);
   }
+  const selectFiles = async (e) => {
+    const selected = Array.from(e.target.files);
+
+    if (selected.length > 10) {
+      alert("최대 10개까지 업로드 가능합니다.");
+      return;
+    }
+
+    setFiles(selected);
+
+    const previews = await Promise.all(
+      selected.map(file => {
+        return new Promise(resolve => {
+          const url = URL.createObjectURL(file);
+
+          // 이미지
+          if (file.type.startsWith("image")) {
+            const img = new Image();
+
+            img.onload = () => {
+              resolve({
+                url,
+                type: "image",
+                direction : img.width > img.height ? "landscape" : "portrait",
+                fit: "cover"
+              });
+            };
+
+            img.src = url;
+          }
+
+          // 동영상
+          else {
+            const video = document.createElement("video");
+
+            video.preload = "metadata";
+
+            video.onloadedmetadata = () => {
+              resolve({
+                url,
+                type: "video",
+                direction : video.videoWidth > video.videoHeight ? "landscape" : "portrait",
+                fit: "cover"
+              });
+            };
+
+            video.src = url;
+          }
+        });
+      })
+    );
+
+    setPreviewFiles(previews);
+  };
+  const toggleFit = (index) => {
+    setPreviewFiles(prev =>
+      prev.map((file, i) => i === index
+        ? {
+            ...file,
+            fit: file.fit === "cover" ? "contain" : "cover"
+          }
+        : file
+      )
+    );
+  };
 
   //포스트 생성
   const createPost = async () => {
@@ -44,6 +124,9 @@ function Story() {
     // 5. reset
     setContent('');
     setFiles([]);
+
+    previewUrls.forEach(file => URL.revokeObjectURL(file.url));
+    setPreviewUrls([]);
     setShowUpload(false);
   };
 
@@ -78,7 +161,8 @@ function Story() {
       uploaded.push({
         url: data.publicUrl,
         type: file.type.startsWith('image') ? 'image' : 'video',
-        sort_order: i
+        sort_order: i,
+        fit: previewFiles[i]?.fit ?? 'cover'
       });
     }
 
@@ -91,7 +175,8 @@ function Story() {
         post_id: postId,
         file_url: file.url,
         file_type: file.type,
-        sort_order: file.sort_order
+        sort_order: file.sort_order,
+        fit: file.fit
       }))
     );
   };
@@ -105,24 +190,26 @@ function Story() {
 
   //목록 만들기
   const fetchPosts = async () => {
-    const { data: posts, error: postError } = await supabase.from('posts').select('*').order('created_at', { ascending: false });
-
+    // URL에 userId가 있으면 그 유저, 없으면 내 피드
+    const targetUserId = userId || user?.id;
+    if (!targetUserId) return;
+    const { data: posts, error: postError } = await supabase.from('posts').select('*').eq('user_id', targetUserId).eq('is_deleted', false).order('created_at', { ascending: false });
     if (postError) {
       console.log(postError);
       return;
     }
 
     const { data: files, error: fileError } = await supabase.from('post_files').select('*');
-
     if (fileError) {
       console.log(fileError);
       return;
     }
 
     const merged = posts.map(post => ({
-      ...post,
-      post_files: files.filter(f => f.post_id === post.id)
-    }));
+        ...post,
+        post_files: files.filter(f => f.post_id === post.id)
+      })
+    );
 
     setPosts(merged);
   };
@@ -146,7 +233,7 @@ function Story() {
         <ul className="posts">
           {posts.map(post => (
               <li key={post.id}>
-                <Link to={`/story/${post.id}`}>
+                <Link to={`/story/detail/${post.id}`}>
                   <p className="thumbs">
                     <img src={getThumbnail(post)} alt="" />
                   </p>
@@ -158,16 +245,29 @@ function Story() {
       {user && <FontAwesomeIcon icon={faPlus} onClick={uploadClick} className={showUpload ? "btn_upload on" : "btn_upload"}><span>등록</span></FontAwesomeIcon>}
       {user && 
         <div className={showUpload ? "upload_board on" : "upload_board"}>
+          <div className="upload_preview">
+            {previewFiles.length > 0 && (
+              <Swiper modules={[Pagination]} spaceBetween={10} slidesPerView={1} pagination={files.length > 1 ? { clickable: true } : false}>
+                {previewFiles.map((file, index) => (
+                  <SwiperSlide key={index}>
+                    {file.type === 'image' ? (
+                      <img src={file.url} alt="" className={`${file.direction} ${file.fit}`} />
+                    ) : (
+                      <video src={file.url} controls className={`${file.direction} ${file.fit}`} />
+                    )}
+                    <button className={`toggleFit ${file.fit === "contain" ? "on" : ""}`} onClick={() => toggleFit(index)}>
+                      <FontAwesomeIcon icon={faCompress} className="cover" />
+                      <FontAwesomeIcon icon={faExpand} className="contain" />
+                    </button>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            )}
+          </div>
           <div className="upload_files">
             사진/동영상 선택
-            <input type="file" multiple accept="image/*, video/*" onChange={(e) => {
-              const selected = Array.from(e.target.files);
-              if (selected.length > 10) {
-                alert('최대 10개까지 업로드 가능합니다.');
-                return;
-              }
-              setFiles(selected);
-            }} />
+            <input type="file" multiple accept="image/*, video/*" onChange={(e) => {selectFiles(e)}} />
+            
           </div>
           <div className="upload_content">
             <textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder="내용을 입력하세요" />
