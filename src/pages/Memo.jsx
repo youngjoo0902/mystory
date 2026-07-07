@@ -122,8 +122,8 @@ function Memo() {
                             <textarea ref={newMemoRef} placeholder="내용을 입력하세요" value={tempContent} onChange={(e) => setTempContent(e.target.value)}></textarea>
                         </div>
                         <div className="ctrl">
-                            <button className="save" onClick={createPost}><FontAwesomeIcon title="저장" icon={faFloppyDisk} /><span>저장</span></button>
                             <button className="cancel" onClick={() => setInsertMemo(false)}><FontAwesomeIcon title="취소" icon={faCircleXmark} /><span>취소</span></button>
+                            <button className="save" onClick={createPost}><FontAwesomeIcon title="저장" icon={faFloppyDisk} /><span>저장</span></button>
                         </div>
                     </li>
                     }
